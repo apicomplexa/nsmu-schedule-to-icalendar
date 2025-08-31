@@ -5,7 +5,7 @@ import tseslint from 'typescript-eslint'
 
 export default tseslint.config(
   {
-    ignores: ['**/*.js'],
+    ignores: ['**/*.js', '**/*.test.ts'],
   },
   eslint.configs.recommended,
   tseslint.configs.strictTypeChecked,
