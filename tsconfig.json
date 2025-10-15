@@ -11,9 +11,10 @@
     "module": "nodenext",
     "target": "esnext",
     "moduleResolution": "nodenext",
-    "baseUrl": "./",
+    "baseUrl": ".",
     "paths": {
-      "@/*": ["*/src"]
+      "#/*": ["./src/*"],
+      "#types/*": ["./src/types/*"]
     },
 
     // Other Outputs
