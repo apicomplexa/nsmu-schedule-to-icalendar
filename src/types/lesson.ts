@@ -11,7 +11,6 @@ export interface ILesson {
   startTime: Date
   endTime: Date
   title: string
-  auditory: string
   location: string
   lessonType: LessonType
   isOnline: boolean
@@ -39,19 +38,9 @@ const LessonTypeMap = new LessonTypeMapClass([
  * @property {Date} startTime - The start time of the lesson.
  * @property {Date} endTime - The end time of the lesson.
  * @property {string} title - The title or subject of the lesson.
- * @property {string} auditory - The auditory or classroom where the lesson takes place.
  * @property {string} location - The location of the lesson.
  * @property {boolean} isOnline - Indicates if the lesson is held online.
  * @property {LessonType} lessonType - The type of the lesson (e.g., lecture, seminar).
- * 
- * @constructor
- * @param {Date} startTime - The start time of the lesson.
- * @param {Date} endTime - The end time of the lesson.
- * @param {string} title - The title or subject of the lesson.
- * @param {string} auditory - The auditory or classroom where the lesson takes place.
- * @param {string} location - The location of the lesson.
- * @param {boolean} isOnline - Indicates if the lesson is held online.
- * @param {LessonType} [lessonType=LessonType.unknown] - The type of the lesson.
  * 
  * @method get lessonType - Gets the type of the lesson.
  * @method setTypeFromHtmlStr - Sets the lesson type based on a string from HTML.
@@ -64,7 +53,6 @@ export class Lesson implements ILesson {
     public readonly startTime: Date,
     public readonly endTime: Date,
     public readonly title: string,
-    public readonly auditory: string,
     public readonly location: string,
     public readonly isOnline: boolean,
     lessonType: LessonType = LessonType.unknown

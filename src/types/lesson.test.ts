@@ -5,7 +5,6 @@ describe('Lesson', () => {
     startTime: new Date('2024-01-01T09:00:00'),
     endTime: new Date('2024-01-01T10:00:00'),
     title: 'Mathematics',
-    auditory: '101',
     location: 'Main Building',
     isOnline: false,
   }
@@ -15,7 +14,6 @@ describe('Lesson', () => {
       baseProps.startTime,
       baseProps.endTime,
       baseProps.title,
-      baseProps.auditory,
       baseProps.location,
       baseProps.isOnline
     )
@@ -23,7 +21,6 @@ describe('Lesson', () => {
     expect(lesson.startTime).toEqual(baseProps.startTime)
     expect(lesson.endTime).toEqual(baseProps.endTime)
     expect(lesson.title).toBe(baseProps.title)
-    expect(lesson.auditory).toBe(baseProps.auditory)
     expect(lesson.location).toBe(baseProps.location)
     expect(lesson.isOnline).toBe(baseProps.isOnline)
   })
@@ -33,7 +30,6 @@ describe('Lesson', () => {
       baseProps.startTime,
       baseProps.endTime,
       baseProps.title,
-      baseProps.auditory,
       baseProps.location,
       baseProps.isOnline,
       LessonType.lab
@@ -46,7 +42,6 @@ describe('Lesson', () => {
       baseProps.startTime,
       baseProps.endTime,
       baseProps.title,
-      baseProps.auditory,
       baseProps.location,
       baseProps.isOnline
     )
@@ -71,7 +66,6 @@ describe('Lesson', () => {
       baseProps.startTime,
       baseProps.endTime,
       baseProps.title,
-      baseProps.auditory,
       baseProps.location,
       baseProps.isOnline
     )
@@ -84,7 +78,6 @@ describe('Lesson', () => {
       baseProps.startTime,
       baseProps.endTime,
       baseProps.title,
-      baseProps.auditory,
       baseProps.location,
       baseProps.isOnline
     )
