@@ -35,16 +35,14 @@ describe('NsmuWebLoader', () => {
 
   describe('loadSchedule', () => {
     it('should return html content for fulfilled and ok responses', async () => {
-      ;(fetch as jest.Mock)
-        .mockResolvedValueOnce({
-          ok: true,
-          text: async () => '<html>week0</html>',
-        })
-        (fetch as jest.Mock)
-        .mockResolvedValueOnce({
-          ok: true,
-          text: async () => '<html>week1</html>',
-        })
+      ;(fetch as jest.Mock).mockResolvedValueOnce({
+        ok: true,
+        text: async () => '<html>week0</html>',
+      })
+      ;(fetch as jest.Mock).mockResolvedValueOnce({
+        ok: true,
+        text: async () => '<html>week1</html>',
+      })
 
       const result = await loader.loadSchedule({ group: '101', spec: 'med' })
 
