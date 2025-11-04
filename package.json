@@ -38,6 +38,7 @@
     "typescript-eslint": "^8.41.0"
   },
   "dependencies": {
-    "express": "^5.1.0"
+    "express": "^5.1.0",
+    "node-html-parser": "^7.0.1"
   }
 }
