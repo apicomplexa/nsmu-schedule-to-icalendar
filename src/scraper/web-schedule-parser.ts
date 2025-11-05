@@ -39,9 +39,8 @@ const dateRegex = /([0-2]\d|3[01])\.(0[1-9]|1[012])\.(20\d\d)/g
 
 export class WebScheduleParser {
   parseWebSchedule(htmlSchedule: string[]): ILesson[] {
-    const parsedHtmlSchedule = htmlSchedule.map((s) => parse(s))
-    const lessonsHtmlContainers = parsedHtmlSchedule.flatMap((s) =>
-      s.querySelectorAll(LESSON_SELECTOR)
+    const lessonsHtmlContainers = htmlSchedule.flatMap((h) =>
+      this.parseLessonsHtmlContainers(h)
     )
     const lessons = lessonsHtmlContainers
       .map((lessonContainer) => this.constructLesson(lessonContainer))
@@ -51,6 +50,16 @@ export class WebScheduleParser {
     return lessons
   }
 
+  private parseLessonsHtmlContainers(htmlSchedule: string): HTMLElement[] {
+    const parsedHtmlSchedule = parse(htmlSchedule)
+    const lessonsHtmlContainers =
+      parsedHtmlSchedule.querySelectorAll(LESSON_SELECTOR)
+    return lessonsHtmlContainers
+  }
+
+  /**
+   * aggregate all others parsing methods to provide results to Lesson constructor
+   */
   private constructLesson(lessonHtml: HTMLElement): Result<ILesson, string> {
     const timeResult = this.parseTime(lessonHtml)
     const dateResult = this.parseDate(lessonHtml)
@@ -172,7 +181,7 @@ export class WebScheduleParser {
   private parseTitleAndTypeStr(
     lessonHtml: HTMLElement
   ): Result<{ title: string; typeStr: string }, string> {
-    const lessonHeader = lessonHtml.childNodes[0]?.childNodes[3]?.innerText
+    const lessonHeader = lessonHtml.childNodes[3]?.innerText
     if (!lessonHeader) {
       return { ok: false, error: 'Lesson header is empty' }
     }
@@ -199,7 +208,7 @@ export class WebScheduleParser {
    *          or an error message if parsing fails.
    */
   private parseLocation(lessonHtml: HTMLElement): Result<string, string> {
-    const location = lessonHtml.childNodes[0]?.childNodes[6]?.innerText
+    const location = lessonHtml.childNodes[6]?.innerText.trim()
     if (!location) {
       return { ok: false, error: 'Cannot parse lesson location' }
     }

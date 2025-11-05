@@ -1,102 +1,134 @@
 import { parse } from 'node-html-parser'
 import { WebScheduleParser } from './web-schedule-parser'
+import * as fs from 'fs'
+import * as path from 'path'
 
 describe('WebScheduleParser (unit)', () => {
   let parser: WebScheduleParser
 
-  const html = `<div style="">
-      <span class="time_para">
-          <b>14:50-16:30 </b>
-          <i>14.10.2025</i>
-      </span>
-      <div style="color:#1c5bdd">Лекция: <i>Внутренние болезни, эндокринология</i></div>
-      <!---->
-      <div>
-          <b>Уч. ауд. № &nbsp;232А,Морфологический корпус Сибиряковцев,  д.2 к.3</b>,
-          <br>
-      </div>
+  const oneLessonHtml = `<div class="isolated-lesson-div-wrapper">
+  <div
+    style="
+      background-color: #ff7400;
+      padding: 5px;
+      height: 370px;
+      max-height: 370px;
+      word-wrap: break-word;
+      border-radius: 10px;
+      border: 1px solid #999;
+    "
+    class="isolated-lesson-div"
+  >
+    <span class="time_para">
+      <b>13:00-14:40 </b><i>08.11.2025</i></span>
+    <div style="color: #1c5bdd">Лекция: <i> Психиатрия</i></div>
+
+    <!---->
+
+    <div>
+      <b>Уч. ауд. № &nbsp;2102, СГМУ Административный корпус</b>,
+      <br>
+      Пр. Троицкий, д. 51
     </div>
-    `
+  </div></div>
+  `
+  const element = parse(oneLessonHtml).querySelector('.isolated-lesson-div')
+
+  const weekHtml = fs.readFileSync(
+    path.join(__dirname, 'week-example.html'),
+    'utf8'
+  )
 
   beforeEach(() => {
     parser = new WebScheduleParser()
   })
 
-  it('parses time (start and end) from lesson HTML', () => {
-    const element = parse(html)
-    const result = (parser as any).parseTime(element)
-    expect(result.ok).toBe(true)
-    expect(result.value.startTime).toEqual({ h: 14, min: 50 })
-    expect(result.value.endTime).toEqual({ h: 16, min: 30 })
+  describe('parseWebSchedule', () => {
+    it('parse all lessons form all HTMLs and convert them to ILesson object', () => {
+      const lessons = parser.parseWebSchedule([weekHtml])
+      expect(lessons).toHaveLength(10)
+
+      expect(lessons[0]?.startTime.toISOString()).toEqual(
+        '2025-11-03T05:30:00.000Z'
+      )
+      expect(lessons[0]?.endTime.toISOString()).toEqual(
+        '2025-11-03T09:55:00.000Z'
+      )
+      expect(lessons[0]?.lessonType).toBe('Clinical Practice')
+      expect(lessons[0]?.title).toContain('онкология,лучевая терапия')
+      expect(lessons[0]?.location).toContain(
+        'Ауд. №Кафедра лучевой диагностики, лучевой терапии'
+      )
+      expect(lessons[0]?.isOnline).toBe(false)
+    })
   })
 
-  it('parses date from lesson HTML', () => {
-    const element = parse(html)
-    const result = (parser as any).parseDate(element)
-    expect(result.ok).toBe(true)
-    expect(result.value.day).toBe(14)
-    expect(result.value.monthIndex).toBe(9) // October (10) index -> 9
-    expect(result.value.year).toBe(2025)
+  describe('parseLessonsHtmlContainers (private)', () => {
+    it('parseLessonsHtmlContainers finds all lessons containers', () => {
+      const lessons = (parser as any).parseLessonsHtmlContainers(weekHtml)
+      expect(lessons).toHaveLength(10)
+    })
   })
 
-  it('parses title and type string from lesson HTML', () => {
-    const element = parse(html)
-    const result = (parser as any).parseTitleAndTypeStr(element)
-    expect(result.ok).toBe(true)
-    expect(result.value.typeStr).toBe('лекция')
-    expect(result.value.title).toContain('внутренние болезни, эндокринология')
+  describe('constructLesson (private)', () => {
+    it('construct Lesson object from HTML', () => {
+      const result = (parser as any).constructLesson(element)
+      expect(result.ok).toBe(true)
+      expect(result.value.startTime.toISOString()).toEqual(
+        '2025-11-08T10:00:00.000Z'
+      )
+      expect(result.value.endTime.toISOString()).toEqual(
+        '2025-11-08T11:40:00.000Z'
+      )
+      expect(result.value.lessonType).toBe('Lection')
+      expect(result.value.title).toContain('психиатрия')
+      expect(result.value.location).toContain('СГМУ Административный корпус')
+      expect(result.value.isOnline).toBe(false)
+    })
   })
 
-  it('parses location from lesson HTML', () => {
-    const element = parse(html)
-    const result = (parser as any).parseLocation(element)
-    expect(result.ok).toBe(true)
-    // Ensure important parts of the location are present (replacement behavior may vary)
-    expect(result.value).toContain('232А')
-    expect(result.value).toContain('Морфологический корпус')
+  describe('parseTime (private)', () => {
+    it('parses time (start and end) from lesson HTML', () => {
+      const result = (parser as any).parseTime(element)
+      expect(result.ok).toBe(true)
+      expect(result.value.startTime).toEqual({ h: 13, min: 0 })
+      expect(result.value.endTime).toEqual({ h: 14, min: 40 })
+    })
   })
 
-  it('detects online lessons by location text', () => {
-    expect((parser as any).isLessonOnline('Ауд. № 101')).toBe(false)
-    expect((parser as any).isLessonOnline('Moodle — онлайн')).toBe(true)
+  describe('parseDate (private)', () => {
+    it('parses date from lesson HTML', () => {
+      const result = (parser as any).parseDate(element)
+      expect(result.ok).toBe(true)
+      expect(result.value.day).toBe(8)
+      expect(result.value.monthIndex).toBe(10) // November (11) index -> 10
+      expect(result.value.year).toBe(2025)
+    })
   })
 
-  it('parseWebSchedule uses constructLesson results and filters out failed parses', () => {
-    // prepare two HTML strings that produce one matching container each
-    const html1 = `<body><div><div><div><div><div>one</div></div></div></div></div></body>`
-    const html2 = `<body><div><div><div><div><div>two</div></div></div></div></div></body>`
-
-    const lesson1 = { mock: 'lesson1' } as any
-    const lesson2 = { mock: 'lesson2' } as any
-
-    const spy = jest
-      .spyOn(parser as any, 'constructLesson')
-      .mockImplementationOnce(() => ({ ok: false, error: 'bad' }))
-      .mockImplementationOnce(() => ({ ok: true, value: lesson2 }))
-
-    const result = parser.parseWebSchedule([html1, html2])
-    expect(spy).toHaveBeenCalled()
-    expect(result).toHaveLength(1)
-    expect(result[0]).toBe(lesson2)
-
-    spy.mockRestore()
+  describe('parseTitleAndTypeStr (private)', () => {
+    it('parses title and type string from lesson HTML', () => {
+      const result = (parser as any).parseTitleAndTypeStr(element)
+      expect(result.ok).toBe(true)
+      expect(result.value.typeStr).toBe('лекция')
+      expect(result.value.title).toContain('психиатрия')
+    })
   })
 
-  it('parseWebSchedule returns all lessons when constructLesson succeeds', () => {
-    const htmlA = `<body><div><div><div><div><div>A</div></div></div></div></div></body>`
-    const htmlB = `<body><div><div><div><div><div>B</div></div></div></div></div></body>`
+  describe('parseLocation (private)', () => {
+    it('parses location from lesson HTML', () => {
+      const result = (parser as any).parseLocation(element)
+      expect(result.ok).toBe(true)
+      // Ensure important parts of the location are present (replacement behavior may vary)
+      expect(result.value).toContain('2102')
+      expect(result.value).toContain('СГМУ Административный корпус')
+    })
+  })
 
-    const lessonA = { id: 'A' } as any
-    const lessonB = { id: 'B' } as any
-
-    const spy = jest
-      .spyOn(parser as any, 'constructLesson')
-      .mockImplementationOnce(() => ({ ok: true, value: lessonA }))
-      .mockImplementationOnce(() => ({ ok: true, value: lessonB }))
-
-    const lessons = parser.parseWebSchedule([htmlA, htmlB])
-    expect(lessons).toEqual([lessonA, lessonB])
-
-    spy.mockRestore()
+  describe('isLessonOnline (private)', () => {
+    it('detects online lessons by location text', () => {
+      expect((parser as any).isLessonOnline('Ауд. № 101')).toBe(false)
+      expect((parser as any).isLessonOnline('Moodle — онлайн')).toBe(true)
+    })
   })
 })
