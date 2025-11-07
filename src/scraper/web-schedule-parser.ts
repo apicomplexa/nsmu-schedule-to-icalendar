@@ -212,7 +212,9 @@ export class WebScheduleParser {
     if (!location) {
       return { ok: false, error: 'Cannot parse lesson location' }
     }
-    const locationFormatted = location.replace('Уч. ауд. № &nbsp;', 'Ауд. №')
+    const locationFormatted = location
+      .replace('Уч. ауд. № &nbsp;', 'Ауд. №')
+      .replaceAll(/\n|\t|\r| {2}/g, '')
 
     return { ok: true, value: locationFormatted }
   }
