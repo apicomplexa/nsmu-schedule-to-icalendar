@@ -32,16 +32,16 @@ const LessonTypeMap = new LessonTypeMapClass([
 
 /**
  * Represents a lesson with its details such as time, title, location, and type.
- * 
+ *
  * @implements {ILesson}
- * 
+ *
  * @property {Date} startTime - The start time of the lesson.
  * @property {Date} endTime - The end time of the lesson.
  * @property {string} title - The title or subject of the lesson.
  * @property {string} location - The location of the lesson.
  * @property {boolean} isOnline - Indicates if the lesson is held online.
  * @property {LessonType} lessonType - The type of the lesson (e.g., lecture, seminar).
- * 
+ *
  * @method get lessonType - Gets the type of the lesson.
  * @method setTypeFromHtmlStr - Sets the lesson type based on a string from HTML.
  * @param {string} typeStr - The string representing the lesson type.
@@ -66,5 +66,17 @@ export class Lesson implements ILesson {
 
   public setTypeFromHtmlStr(typeStr: string) {
     this._lessonType = LessonTypeMap.get(typeStr.trim().toLowerCase())
+  }
+
+  public toJSON(): ILesson {
+    const lesson: ILesson = {
+      startTime: this.startTime,
+      endTime: this.endTime,
+      title: this.title,
+      location: this.location,
+      isOnline: this.isOnline,
+      lessonType: this.lessonType,
+    }
+    return lesson
   }
 }
