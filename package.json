@@ -5,10 +5,10 @@
   "main": "dist/index.js",
   "scripts": {
     "test": "jest",
-    "start": "node dist/index.js",
+    "start": "node --env-file-if-exists=.env --env-file=.env.example dist/index.js",
     "build": "tsc && tsc-alias",
-    "dev": "tsx src/index.ts",
-    "dev:watch": "npx tsx --watch src/index.ts",
+    "dev": "tsx --env-file-if-exists=.env --env-file=.env.example src/index.ts",
+    "dev:watch": "npx tsx --env-file-if-exists=.env --env-file=.env.example --watch src/index.ts ",
     "lint": "eslint --fix .",
     "format": "prettier --write ."
   },
