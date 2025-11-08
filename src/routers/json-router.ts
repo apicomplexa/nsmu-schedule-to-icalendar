@@ -1,5 +1,5 @@
 import express from 'express'
-import { getLections, getLessons, UrlArgs } from '#/scraper'
+import { getLections, getLessons, UrlArgs } from '#/providers/scraper'
 import { ILesson } from '#types/lesson'
 
 const lessonsMiddlewareFactory = (
