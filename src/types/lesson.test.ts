@@ -1,5 +1,9 @@
 import { Lesson, LessonType } from './lesson'
 
+jest.mock('crypto')
+
+import { randomUUID } from 'crypto'
+
 describe('Lesson', () => {
   const baseProps = {
     startTime: new Date('2024-01-01T09:00:00'),
@@ -83,5 +87,49 @@ describe('Lesson', () => {
     )
     lesson.setTypeFromHtmlStr('  ЛЕКЦИЯ  ')
     expect(lesson.lessonType).toBe(LessonType.lection)
+  })
+
+  it('toICalEvent returns iCal formatted string with correct fields (lection)', () => {
+    ;(randomUUID as jest.Mock).mockReturnValueOnce('mocked-uuid')
+
+    const lesson = new Lesson(
+      baseProps.startTime,
+      baseProps.endTime,
+      baseProps.title,
+      baseProps.location,
+      baseProps.isOnline,
+      LessonType.lection
+    )
+
+    const ical = lesson.toICalEvent()
+
+    expect(ical).toContain('BEGIN:VEVENT')
+    expect(ical).toContain('UID:mocked-uuid')
+    expect(ical).toContain(`DTSTART:20240101T060000Z`)
+    expect(ical).toContain(`DTEND:20240101T070000Z`)
+    expect(ical).toContain(`SUMMARY:📝Mathematics (Лекция)`)
+    expect(ical).toContain(`LOCATION:Main Building`)
+  })
+
+  it('toICalEvent uses unknown icons/localization for unknown lessonType', () => {
+    ;(randomUUID as jest.Mock).mockReturnValueOnce('uuid-unknown')
+
+    const lesson = new Lesson(
+      baseProps.startTime,
+      baseProps.endTime,
+      baseProps.title,
+      baseProps.location,
+      baseProps.isOnline
+      // defaults to unknown
+    )
+
+    const ical = lesson.toICalEvent()
+
+    expect(ical).toContain('BEGIN:VEVENT')
+    expect(ical).toContain('UID:uuid-unknown')
+    expect(ical).toContain(`DTSTART:20240101T060000Z`)
+    expect(ical).toContain(`DTEND:20240101T070000Z`)
+    expect(ical).toContain(`SUMMARY:❔Mathematics (Неизвестный тип)`)
+    expect(ical).toContain(`LOCATION:Main Building`)
   })
 })

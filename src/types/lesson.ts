@@ -1,3 +1,5 @@
+import { randomUUID } from 'crypto'
+
 export enum LessonType {
   practice = 'Practice',
   sem = 'Seminar',
@@ -16,19 +18,59 @@ export interface ILesson {
   isOnline: boolean
 }
 
-class LessonTypeMapClass extends Map<string, LessonType> {
-  get(key: string): LessonType {
-    return super.get(key) ?? LessonType.unknown
+class MapWithDefaultValue<Index, Value> extends Map<Index, Value> {
+  defaultValue: Value
+  constructor(
+    iterable: Iterable<readonly [Index, Value]>,
+    defaultValue: Value
+  ) {
+    super(iterable)
+    this.defaultValue = defaultValue
+  }
+  get(key: Index): Value {
+    return super.get(key) ?? this.defaultValue
   }
 }
 
-const LessonTypeMap = new LessonTypeMapClass([
-  ['лекция', LessonType.lection],
-  ['практические занятия', LessonType.practice],
-  ['лабораторное занятие', LessonType.lab],
-  ['семинар', LessonType.sem],
-  ['клинические практические занятия', LessonType.clin],
-])
+const LessonTypeMap = new MapWithDefaultValue(
+  [
+    ['лекция', LessonType.lection],
+    ['практические занятия', LessonType.practice],
+    ['лабораторное занятие', LessonType.lab],
+    ['семинар', LessonType.sem],
+    ['клинические практические занятия', LessonType.clin],
+  ],
+  LessonType.unknown
+)
+
+const LessonsTypeLocalIcon = new MapWithDefaultValue(
+  [
+    [LessonType.practice, '✏️'],
+    [LessonType.sem, '✏️'],
+    [LessonType.lab, '✏️'],
+    [LessonType.clin, '✏️'],
+    [LessonType.unknown, '❔'],
+    [LessonType.lection, '📝'],
+  ],
+  '❔'
+)
+
+const LessonsTypeLocalRu = new MapWithDefaultValue(
+  [
+    [LessonType.practice, 'Приктическое занятие'],
+    [LessonType.sem, 'Семинар'],
+    [LessonType.lab, 'Лабораторное занятие'],
+    [LessonType.clin, 'Клиническая Практика'],
+    [LessonType.unknown, 'Неизвестный тип'],
+    [LessonType.lection, 'Лекция'],
+  ],
+  'Неизвестный тип'
+)
+
+// Helper function to format dates to iCalendar format
+function formatDate(date: Date) {
+  return date.toISOString().replaceAll(/-|:|(\.\d{3})/g, '')
+}
 
 /**
  * Represents a lesson with its details such as time, title, location, and type.
@@ -78,5 +120,18 @@ export class Lesson implements ILesson {
       lessonType: this.lessonType,
     }
     return lesson
+  }
+
+  public toICalEvent(): string {
+    return `
+    BEGIN:VEVENT 
+    UID:${randomUUID()} 
+    DTSTAMP:${formatDate(new Date())} 
+    DTSTART:${formatDate(this.startTime)} 
+    DTEND:${formatDate(this.endTime)} 
+    SUMMARY:${LessonsTypeLocalIcon.get(this.lessonType)}${this.title} (${LessonsTypeLocalRu.get(this.lessonType)}) 
+    LOCATION:${this.location} 
+    END:VEVENT
+    `
   }
 }
