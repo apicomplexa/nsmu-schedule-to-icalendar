@@ -1,5 +1,5 @@
 import { HTMLElement, parse } from 'node-html-parser'
-import { ILesson, Lesson } from '#types/lesson'
+import { Lesson } from '#/types/lesson'
 import { Result } from '#types/result'
 import { constructDate } from '#tools/construct-date'
 
@@ -38,7 +38,7 @@ const dateRegex = /([0-2]\d|3[01])\.(0[1-9]|1[012])\.(20\d\d)/g
  */
 
 export class WebScheduleParser {
-  parseWebSchedule(htmlSchedule: string[]): ILesson[] {
+  parseWebSchedule(htmlSchedule: string[]): Lesson[] {
     const lessonsHtmlContainers = htmlSchedule.flatMap((h) =>
       this.parseLessonsHtmlContainers(h)
     )
@@ -60,7 +60,7 @@ export class WebScheduleParser {
   /**
    * aggregate all others parsing methods to provide results to Lesson constructor
    */
-  private constructLesson(lessonHtml: HTMLElement): Result<ILesson, string> {
+  private constructLesson(lessonHtml: HTMLElement): Result<Lesson, string> {
     const timeResult = this.parseTime(lessonHtml)
     const dateResult = this.parseDate(lessonHtml)
     const titleAndTypeResult = this.parseTitleAndTypeStr(lessonHtml)

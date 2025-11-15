@@ -1,5 +1,5 @@
 import express from 'express'
-import { getLections, getLessons, UrlArgs } from '#/providers/scraper'
+import { UrlArgs, lessonsProvider } from '#/providers/lessons-provider'
 import { ILesson } from '#types/lesson'
 
 const lessonsMiddlewareFactory = (
@@ -41,12 +41,12 @@ export const JsonRouterFabric = (): express.Router => {
 
   router.get('/all/:curse/:group/:spec', [
     logMiddleware,
-    lessonsMiddlewareFactory(getLessons),
+    lessonsMiddlewareFactory((params) => lessonsProvider.getLessons(params)),
   ])
 
   router.get('/lections/:curse/:group/:spec', [
     logMiddleware,
-    lessonsMiddlewareFactory(getLections),
+    lessonsMiddlewareFactory((params) => lessonsProvider.getLessons(params)),
   ])
 
   return router
