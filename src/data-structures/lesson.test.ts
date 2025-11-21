@@ -1,4 +1,5 @@
-import { Lesson, LessonType } from './lesson'
+import { Lesson } from './lesson'
+import { LessonType } from '#/types/lesson'
 
 jest.mock('crypto')
 

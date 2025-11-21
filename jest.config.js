@@ -8,8 +8,8 @@ module.exports = {
   moduleFileExtensions: ['js', 'ts', 'json', 'node'],
   moduleNameMapper: {
     '#/(.*)': '<rootDir>/src/$1',
-    '#types/(.*)': '<rootDir>/src/types/$1',
-    '#tools/(.*)': '<rootDir>/src/tools/$1',
+    '#T/(.*)': '<rootDir>/src/types/$1',
+    '#DS/(.*)': '<rootDir>/src/data-structures/$1',
   },
   testMatch: ['**/src/**/*.test.(js|ts)'],
   transform: {

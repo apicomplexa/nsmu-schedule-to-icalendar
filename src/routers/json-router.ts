@@ -1,9 +1,10 @@
 import express from 'express'
-import { UrlArgs, lessonsProvider } from '#/providers/lessons-provider'
-import { ILesson } from '#types/lesson'
+import { LessonData } from '#/types/lesson'
+import { GroupId } from '#/types/repository'
+import { ISchedule } from '#/types/schedule'
 
 const lessonsMiddlewareFactory = (
-  getLessonsFunc: (params: UrlArgs) => Promise<ILesson[]>
+  getLessonsFunc: (params: GroupId) => Promise<LessonData[]>
 ) => {
   return async (
     req: express.Request<{
@@ -36,7 +37,12 @@ const logMiddleware = (
   next()
 }
 
-export const JsonRouterFabric = (): express.Router => {
+interface LessonsProvider {
+  getLessons(params: GroupId): Promise<ISchedule>
+  getLections(params: GroupId): Promise<ISchedule>
+}
+
+export const JsonRouterFabric = (lessonsProvider: LessonsProvider): express.Router => {
   const router = express.Router()
 
   router.get('/all/:curse/:group/:spec', [
@@ -46,7 +52,7 @@ export const JsonRouterFabric = (): express.Router => {
 
   router.get('/lections/:curse/:group/:spec', [
     logMiddleware,
-    lessonsMiddlewareFactory((params) => lessonsProvider.getLessons(params)),
+    lessonsMiddlewareFactory((params) => lessonsProvider.getLections(params)),
   ])
 
   return router

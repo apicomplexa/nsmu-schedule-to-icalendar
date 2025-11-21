@@ -13,9 +13,9 @@
     "moduleResolution": "nodenext",
     "baseUrl": ".",
     "paths": {
-      "#/*": ["./src/*"],
-      "#types/*": ["./src/types/*"],
-      "#tools/*": ["./src/tools/*"]
+      "#T/*": ["./src/types/*"],
+      "#DS/*": ["./src/data-structures/*"],
+      "#/*": ["./src/*"]
     },
 
     // Other Outputs

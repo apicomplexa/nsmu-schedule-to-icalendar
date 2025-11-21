@@ -1,24 +1,10 @@
-import { ILesson, LessonType } from '#/types/lesson'
-import { NsmuWebLoader, WebScheduleParser } from '#/providers/scraper'
-import { Schedule } from '#/types/schedule'
+import { LessonData, LessonType } from '#/types/lesson'
+import { ISchedule } from '#/types/schedule'
+import { GroupId, ScheduleRepository } from '#/types/repository'
+import { Schedule } from '#/data-structures/schedule'
 
-const nsmuBaseURL =
-  process.env.NSMU_BASE_URL ??
-  'https://ruz.nsmu.ru/?week={week}&group={group}&spec={spec}'
-
-export interface UrlArgs {
-  group: string
-  spec: string
-}
-
-class LessonsProvider {
-  webLoader: NsmuWebLoader
-  parser: WebScheduleParser
-
-  constructor() {
-    this.webLoader = new NsmuWebLoader(nsmuBaseURL)
-    this.parser = new WebScheduleParser()
-  }
+export class LessonsProvider {
+  constructor(private lessonRepo: ScheduleRepository) {}
 
   /**
    * Loads lessons from NSMU web schedule and parse them to objects.
@@ -26,12 +12,8 @@ class LessonsProvider {
    * @param params group and spec of NSMU web schedule
    * @returns list lessons
    */
-  public async getLessons(params: UrlArgs): Promise<Schedule> {
-    const htmlSchedule = await this.webLoader.loadSchedule({
-      group: params.group,
-      spec: params.spec,
-    })
-    const lessons = this.parser.parseWebSchedule(htmlSchedule)
+  public async getLessons(params: GroupId): Promise<ISchedule> {
+    const lessons = await this.lessonRepo.getGroupSchedule(params)
     return lessons
   }
 
@@ -43,11 +25,11 @@ class LessonsProvider {
    * @returns list lections
    */
   private async getFilteredLessons(
-    params: UrlArgs & { filterFunc: (l: ILesson) => boolean }
+    params: GroupId & { filterFunc: (l: LessonData) => boolean }
   ) {
-    const lessons = await this.getLessons(params)
-    const lections = lessons.filter(params.filterFunc)
-    return new Schedule(...lections)
+    const schedule = await this.getLessons(params)
+    const filteredSchedule = schedule.filter(params.filterFunc)
+    return new Schedule(...filteredSchedule)
   }
 
   /**
@@ -57,7 +39,7 @@ class LessonsProvider {
    * @param params group and spec of NSMU web schedule
    * @returns list lections
    */
-  public async getLections(params: UrlArgs) {
+  public async getLections(params: GroupId) {
     return this.getFilteredLessons({
       ...params,
       filterFunc: (l) => l.lessonType === LessonType.lection,
@@ -71,7 +53,7 @@ class LessonsProvider {
    * @param params group and spec of NSMU web schedule
    * @returns list lections
    */
-  public async getPractices(params: UrlArgs) {
+  public async getPractices(params: GroupId) {
     return this.getFilteredLessons({
       ...params,
       filterFunc: (l) => l.lessonType !== LessonType.lection,
@@ -79,4 +61,3 @@ class LessonsProvider {
   }
 }
 
-export const lessonsProvider = new LessonsProvider()
