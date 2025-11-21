@@ -123,15 +123,15 @@ export class Lesson implements ILesson {
   }
 
   public toICalEvent(): string {
-    return `
-    BEGIN:VEVENT 
+    return `BEGIN:VEVENT 
     UID:${randomUUID()} 
     DTSTAMP:${formatDate(new Date())} 
     DTSTART:${formatDate(this.startTime)} 
     DTEND:${formatDate(this.endTime)} 
     SUMMARY:${LessonsTypeLocalIcon.get(this.lessonType)}${this.title} (${LessonsTypeLocalRu.get(this.lessonType)}) 
     LOCATION:${this.location} 
-    END:VEVENT
-    `
+    END:VEVENT`
+      .replaceAll(/(^ *)|( *$)/gm, '')
+      .replaceAll(`\n\r`, '\n')
   }
 }

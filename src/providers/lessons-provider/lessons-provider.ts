@@ -1,5 +1,6 @@
-import { ILesson, Lesson, LessonType } from '#/types/lesson'
+import { ILesson, LessonType } from '#/types/lesson'
 import { NsmuWebLoader, WebScheduleParser } from '#/providers/scraper'
+import { Schedule } from '#/types/schedule'
 
 const nsmuBaseURL =
   process.env.NSMU_BASE_URL ??
@@ -25,7 +26,7 @@ class LessonsProvider {
    * @param params group and spec of NSMU web schedule
    * @returns list lessons
    */
-  public async getLessons(params: UrlArgs): Promise<Lesson[]> {
+  public async getLessons(params: UrlArgs): Promise<Schedule> {
     const htmlSchedule = await this.webLoader.loadSchedule({
       group: params.group,
       spec: params.spec,
@@ -46,7 +47,7 @@ class LessonsProvider {
   ) {
     const lessons = await this.getLessons(params)
     const lections = lessons.filter(params.filterFunc)
-    return lections
+    return new Schedule(...lections)
   }
 
   /**
