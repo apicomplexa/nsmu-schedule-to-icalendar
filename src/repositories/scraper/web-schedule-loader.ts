@@ -1,7 +1,4 @@
-interface ScheduleUrlParams {
-  group: string
-  spec: string
-}
+import { GroupId } from "#T/repository"
 
 export class NsmuWebLoader {
   constructor(private readonly baseUrl: string) {}
@@ -12,7 +9,7 @@ export class NsmuWebLoader {
    * @returns array of strings - raw html contest of webpage with schedule.
    *   Every string is webpage with schedule for one week.
    */
-  async loadSchedule(param: ScheduleUrlParams): Promise<string[]> {
+  async loadSchedule(param: GroupId): Promise<string[]> {
     const weekNumbers = [0, 1]
     const scheduleUrls = weekNumbers.map((week) =>
       this.constructUrlToWeekSchedule(param, week)
@@ -53,7 +50,7 @@ export class NsmuWebLoader {
    *   If any other variant will be provided, it will be replaced to 0
    */
   private constructUrlToWeekSchedule(
-    param: ScheduleUrlParams,
+    param: GroupId,
     week: number
   ): string {
     const { group: group, spec } = param
